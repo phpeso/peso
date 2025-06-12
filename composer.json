@@ -1,0 +1,7 @@
+{
+    "name": "peso/peso",
+    "type": "metapackage",
+    "config": {
+        "sort-packages": true
+    }
+}
