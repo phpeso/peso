@@ -14,7 +14,7 @@
     },
     "require": {
         "php": "^8.2",
-        "peso/core": "^0.1.4"
+        "peso/core": "^0.1.4 || ^0.9"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.9",
