@@ -2,6 +2,10 @@
 
 ## Pre-release
 
+### next
+
+* convert and convertOnDate accept float as a value
+
 ### 0.1.1
 
 *Jun 20, 2025*
