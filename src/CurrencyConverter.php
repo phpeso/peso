@@ -7,13 +7,11 @@ namespace Peso\Peso;
 use Arokettu\Date\Calendar;
 use Arokettu\Date\Date;
 use DateTimeInterface;
-use Error;
 use Peso\Core\Exceptions\PesoException;
 use Peso\Core\Helpers\Calculator;
 use Peso\Core\Helpers\CalculatorInterface;
 use Peso\Core\Requests\CurrentExchangeRateRequest;
 use Peso\Core\Requests\HistoricalExchangeRateRequest;
-use Peso\Core\Responses\ErrorResponse;
 use Peso\Core\Responses\SuccessResponse;
 use Peso\Core\Services\ExchangeRateServiceInterface;
 use Peso\Core\Types\Decimal;
@@ -48,10 +46,8 @@ final readonly class CurrencyConverter
         if ($result instanceof SuccessResponse) {
             return $result->rate;
         }
-        if ($result instanceof ErrorResponse) {
-            throw $result->exception;
-        }
-        throw new Error('Invalid response');
+
+        throw $result->exception;
     }
 
     /**
@@ -74,12 +70,13 @@ final readonly class CurrencyConverter
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
     ): Decimal {
-        if (is_string($date)) {
+        if (\is_string($date)) {
             try {
-                $date = Calendar::parse($date);
+                $dateObj = Calendar::parse($date);
             } catch (UnexpectedValueException) {
-                $date = Calendar::parseDateTimeString($date);
+                $dateObj = Calendar::parseDateTimeString($date);
             }
+            $date = $dateObj;
         }
 
         if ($date instanceof DateTimeInterface) {
@@ -91,38 +88,40 @@ final readonly class CurrencyConverter
         if ($result instanceof SuccessResponse) {
             return $result->rate;
         }
-        if ($result instanceof ErrorResponse) {
-            throw $result->exception;
-        }
-        throw new Error('Invalid response');
+
+        throw $result->exception;
     }
 
     /**
-     * @param numeric-string $baseAmount
+     * @param numeric-string|float|Decimal $baseAmount
      * @return numeric-string
      * @throws PesoException
      */
-    public function convert(string $baseAmount, string $baseCurrency, string $quoteCurrency, int $precision): string
-    {
-        $amount = new Decimal($baseAmount);
+    public function convert(
+        string|float|Decimal $baseAmount,
+        string $baseCurrency,
+        string $quoteCurrency,
+        int $precision
+    ): string {
+        $amount = Decimal::init($baseAmount);
         $scale = $this->doGetConversionRate($baseCurrency, $quoteCurrency);
 
         return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
     }
 
     /**
-     * @param numeric-string $baseAmount
+     * @param numeric-string|float|Decimal $baseAmount
      * @return numeric-string
      * @throws PesoException
      */
     public function convertOnDate(
-        string $baseAmount,
+        string|float|Decimal $baseAmount,
         string $baseCurrency,
         string $quoteCurrency,
         int $precision,
         string|DateTimeInterface|Date $date,
     ): string {
-        $amount = new Decimal($baseAmount);
+        $amount = Decimal::init($baseAmount);
         $scale = $this->doGetHistoricalConversionRate($baseCurrency, $quoteCurrency, $date);
 
         return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
