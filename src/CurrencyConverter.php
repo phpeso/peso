@@ -10,6 +10,7 @@ use DateTimeInterface;
 use Error;
 use Peso\Core\Exceptions\PesoException;
 use Peso\Core\Helpers\Calculator;
+use Peso\Core\Helpers\CalculatorInterface;
 use Peso\Core\Requests\CurrentExchangeRateRequest;
 use Peso\Core\Requests\HistoricalExchangeRateRequest;
 use Peso\Core\Responses\ErrorResponse;
@@ -20,9 +21,12 @@ use UnexpectedValueException;
 
 final readonly class CurrencyConverter
 {
+    private CalculatorInterface $calculator;
+
     public function __construct(
         private ExchangeRateServiceInterface $service,
     ) {
+        $this->calculator = Calculator::instance();
     }
 
     /**
@@ -103,7 +107,7 @@ final readonly class CurrencyConverter
         $amount = new Decimal($baseAmount);
         $scale = $this->doGetConversionRate($baseCurrency, $quoteCurrency);
 
-        return Calculator::round(Calculator::multiply($amount, $scale), $precision)->value;
+        return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
     }
 
     /**
@@ -121,6 +125,6 @@ final readonly class CurrencyConverter
         $amount = new Decimal($baseAmount);
         $scale = $this->doGetHistoricalConversionRate($baseCurrency, $quoteCurrency, $date);
 
-        return Calculator::round(Calculator::multiply($amount, $scale), $precision)->value;
+        return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
     }
 }
