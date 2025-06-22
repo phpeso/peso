@@ -1,7 +1,21 @@
 {
     "name": "peso/peso",
     "type": "library",
+    "description": "A simple standalone currency converter based on the Peso framework",
+    "keywords": ["currency", "currency rates", "currency converter", "peso", "phpeso"],
+    "homepage": "https://phpeso.readthedocs.io/",
     "license": "MIT",
+    "authors": [{
+        "name": "Anton Smirnov",
+        "role": "developer",
+        "homepage": "https://sandfox.me/",
+        "email": "sandfox+phpeso@sandfox.me"
+    }],
+    "support": {
+        "issues": "https://github.com/phpeso/peso/issues",
+        "source": "https://github.com/phpeso/peso",
+        "docs": "https://phpeso.readthedocs.io/"
+    },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
