@@ -71,12 +71,7 @@ final readonly class CurrencyConverter
         string|DateTimeInterface|Date $date,
     ): Decimal {
         if (\is_string($date)) {
-            try {
-                $dateObj = Calendar::parse($date);
-            } catch (UnexpectedValueException) {
-                $dateObj = Calendar::parseDateTimeString($date);
-            }
-            $date = $dateObj;
+            $date = Calendar::parse($date);
         }
 
         if ($date instanceof DateTimeInterface) {

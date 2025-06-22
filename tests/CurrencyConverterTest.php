@@ -117,8 +117,6 @@ class CurrencyConverterTest extends TestCase
             [Calendar::parse('2025-06-13')],
             ['2025-06-13'],
             [new DateTime('2025-06-13')],
-            ['13.06.2025'],
-            ['6/13/2025'],
         ];
     }
 
