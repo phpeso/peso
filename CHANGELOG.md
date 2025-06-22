@@ -2,7 +2,7 @@
 
 ## Pre-release
 
-### 0.9.0
+### 0.9.0 "Beta 1"
 
 *Jun 22, 2025*
 
@@ -16,7 +16,7 @@
 * Rebase on Core 0.9
 * Allow Core 0.10
 
-### 0.1.0
+### 0.1.0 "Alpha 1"
 
 *June 17, 2025*
 
