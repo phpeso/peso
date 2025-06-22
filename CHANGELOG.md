@@ -2,9 +2,12 @@
 
 ## Pre-release
 
-### next
+### 0.9.0
 
-* convert and convertOnDate accept float as a value
+*Jun 22, 2025*
+
+* ``convert`` and ``convertOnDate`` accept float as a value
+* String dates are accepted only in Y-m-d form
 
 ### 0.1.1
 
