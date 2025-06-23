@@ -1,4 +1,4 @@
-# Peso
+# Peso Currency Converter
 
 [![Packagist]][Packagist Link]
 [![PHP]][Packagist Link]
