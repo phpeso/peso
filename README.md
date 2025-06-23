@@ -1,4 +1,4 @@
-# European Central Bank Service for Peso
+# Peso
 
 [![Packagist]][Packagist Link]
 [![PHP]][Packagist Link]
