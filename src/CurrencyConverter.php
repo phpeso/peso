@@ -12,10 +12,9 @@ use Peso\Core\Helpers\Calculator;
 use Peso\Core\Helpers\CalculatorInterface;
 use Peso\Core\Requests\CurrentExchangeRateRequest;
 use Peso\Core\Requests\HistoricalExchangeRateRequest;
-use Peso\Core\Responses\SuccessResponse;
+use Peso\Core\Responses\ExchangeRateResponse;
 use Peso\Core\Services\ExchangeRateServiceInterface;
 use Peso\Core\Types\Decimal;
-use UnexpectedValueException;
 
 final readonly class CurrencyConverter
 {
@@ -43,7 +42,7 @@ final readonly class CurrencyConverter
     {
         $result = $this->service->send(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
 
-        if ($result instanceof SuccessResponse) {
+        if ($result instanceof ExchangeRateResponse) {
             return $result->rate;
         }
 
@@ -80,7 +79,7 @@ final readonly class CurrencyConverter
 
         $result = $this->service->send(new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date));
 
-        if ($result instanceof SuccessResponse) {
+        if ($result instanceof ExchangeRateResponse) {
             return $result->rate;
         }
 

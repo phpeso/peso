@@ -35,7 +35,7 @@
     "require": {
         "php": "^8.2",
         "arokettu/date": "^2.4",
-        "peso/core": "^0.10.1"
+        "peso/core": "^0.10.3 || ^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.2",
