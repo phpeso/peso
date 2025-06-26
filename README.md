@@ -39,7 +39,7 @@ echo $peso->convertOnDate('1500', 'EUR', 'PHP', 2, '2025-06-13'), PHP_EOL; // '9
 
 ## Documentation
 
-Read the full documentation here: <https://phpeso.org/v0.x/integrations/peso.html>
+Read the full documentation here: <https://phpeso.org/v1.x/integrations/peso.html>
 
 ## Support
 
