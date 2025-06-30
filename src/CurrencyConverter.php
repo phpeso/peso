@@ -10,19 +10,34 @@ use DateTimeInterface;
 use Peso\Core\Exceptions\PesoException;
 use Peso\Core\Helpers\Calculator;
 use Peso\Core\Helpers\CalculatorInterface;
+use Peso\Core\Requests\CurrentConversionRequest;
 use Peso\Core\Requests\CurrentExchangeRateRequest;
+use Peso\Core\Requests\HistoricalConversionRequest;
 use Peso\Core\Requests\HistoricalExchangeRateRequest;
+use Peso\Core\Responses\ConversionResponse;
 use Peso\Core\Responses\ExchangeRateResponse;
-use Peso\Core\Services\ExchangeRateServiceInterface;
+use Peso\Core\Services\ChainService;
+use Peso\Core\Services\ConversionService;
+use Peso\Core\Services\PesoServiceInterface;
 use Peso\Core\Types\Decimal;
+use Peso\Peso\Options\ConversionType;
 
 final readonly class CurrencyConverter
 {
+    private PesoServiceInterface $rateService;
+    private PesoServiceInterface $conversionService;
     private CalculatorInterface $calculator;
 
     public function __construct(
-        private ExchangeRateServiceInterface $service,
+        PesoServiceInterface $service,
+        ConversionType $conversionType = ConversionType::Both,
     ) {
+        $this->rateService = $service;
+        $this->conversionService = match ($conversionType) {
+            ConversionType::NativeOnly => $service,
+            ConversionType::CalculatedOnly => new ConversionService($service),
+            ConversionType::Both => new ChainService($service, new ConversionService($service)),
+        };
         $this->calculator = Calculator::instance();
     }
 
@@ -30,9 +45,19 @@ final readonly class CurrencyConverter
      * @return numeric-string
      * @throws PesoException
      */
-    public function getConversionRate(string $baseCurrency, string $quoteCurrency): string
+    public function getExchangeRate(string $baseCurrency, string $quoteCurrency): string
     {
         return $this->doGetConversionRate($baseCurrency, $quoteCurrency)->value;
+    }
+
+    /**
+     * @return numeric-string
+     * @throws PesoException
+     * @deprecated getExchangeRate()
+     */
+    public function getConversionRate(string $baseCurrency, string $quoteCurrency): string
+    {
+        return $this->getExchangeRate($baseCurrency, $quoteCurrency);
     }
 
     /**
@@ -40,7 +65,7 @@ final readonly class CurrencyConverter
      */
     private function doGetConversionRate(string $baseCurrency, string $quoteCurrency): Decimal
     {
-        $result = $this->service->send(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
+        $result = $this->rateService->send(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
 
         if ($result instanceof ExchangeRateResponse) {
             return $result->rate;
@@ -53,12 +78,25 @@ final readonly class CurrencyConverter
      * @return numeric-string
      * @throws PesoException
      */
-    public function getHistoricalConversionRate(
+    public function getHistoricalExchangeRate(
         string $baseCurrency,
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
     ): string {
         return $this->doGetHistoricalConversionRate($baseCurrency, $quoteCurrency, $date)->value;
+    }
+
+    /**
+     * @return numeric-string
+     * @throws PesoException
+     * @deprecated getHistoricalExchangeRate()
+     */
+    public function getHistoricalConversionRate(
+        string $baseCurrency,
+        string $quoteCurrency,
+        string|DateTimeInterface|Date $date,
+    ): string {
+        return $this->getHistoricalExchangeRate($baseCurrency, $quoteCurrency, $date);
     }
 
     /**
@@ -69,21 +107,25 @@ final readonly class CurrencyConverter
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
     ): Decimal {
-        if (\is_string($date)) {
-            $date = Calendar::parse($date);
-        }
-
-        if ($date instanceof DateTimeInterface) {
-            $date = Calendar::fromDateTime($date);
-        }
-
-        $result = $this->service->send(new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date));
+        $date = $this->normalizeDate($date);
+        $result = $this->rateService->send(new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date));
 
         if ($result instanceof ExchangeRateResponse) {
             return $result->rate;
         }
 
         throw $result->exception;
+    }
+
+    private function normalizeDate(string|DateTimeInterface|Date $date): Date
+    {
+        if (\is_string($date)) {
+            return Calendar::parse($date);
+        }
+        if ($date instanceof DateTimeInterface) {
+            return Calendar::fromDateTime($date);
+        }
+        return $date;
     }
 
     /**
@@ -95,12 +137,19 @@ final readonly class CurrencyConverter
         string|float|Decimal $baseAmount,
         string $baseCurrency,
         string $quoteCurrency,
-        int $precision
+        int $precision,
     ): string {
         $amount = Decimal::init($baseAmount);
-        $scale = $this->doGetConversionRate($baseCurrency, $quoteCurrency);
 
-        return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
+        $response = $this->conversionService->send(
+            new CurrentConversionRequest($amount, $baseCurrency, $quoteCurrency),
+        );
+
+        if ($response instanceof ConversionResponse) {
+            return $this->calculator->round($response->amount, $precision)->value;
+        }
+
+        throw $response->exception;
     }
 
     /**
@@ -116,8 +165,16 @@ final readonly class CurrencyConverter
         string|DateTimeInterface|Date $date,
     ): string {
         $amount = Decimal::init($baseAmount);
-        $scale = $this->doGetHistoricalConversionRate($baseCurrency, $quoteCurrency, $date);
+        $date = $this->normalizeDate($date);
 
-        return $this->calculator->round($this->calculator->multiply($amount, $scale), $precision)->value;
+        $response = $this->conversionService->send(
+            new HistoricalConversionRequest($amount, $baseCurrency, $quoteCurrency, $date),
+        );
+
+        if ($response instanceof ConversionResponse) {
+            return $this->calculator->round($response->amount, $precision)->value;
+        }
+
+        throw $response->exception;
     }
 }
