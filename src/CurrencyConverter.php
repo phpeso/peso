@@ -30,13 +30,13 @@ final readonly class CurrencyConverter
 
     public function __construct(
         PesoServiceInterface $service,
-        ConversionType $conversionType = ConversionType::Both,
+        ConversionType $conversionType = ConversionType::Fallback,
     ) {
         $this->rateService = $service;
         $this->conversionService = match ($conversionType) {
             ConversionType::NativeOnly => $service,
             ConversionType::CalculatedOnly => new ConversionService($service),
-            ConversionType::Both => new ChainService($service, new ConversionService($service)),
+            ConversionType::Fallback => new ChainService($service, new ConversionService($service)),
         };
         $this->calculator = Calculator::instance();
     }

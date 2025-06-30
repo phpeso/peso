@@ -2,6 +2,10 @@
 
 ## 1.x
 
+### next
+
+* Renamed ConversionType::Both to ConversionType::Fallback
+
 ### 1.1.0
 
 *Jul 1, 2025*

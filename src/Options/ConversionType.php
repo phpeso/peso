@@ -8,5 +8,10 @@ enum ConversionType
 {
     case NativeOnly;
     case CalculatedOnly;
-    case Both;
+    case Fallback;
+
+    /**
+     * @deprecated
+     */
+    public const Both = self::Fallback;
 }
