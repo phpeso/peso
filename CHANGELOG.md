@@ -2,6 +2,12 @@
 
 ## 1.x
 
+### 1.1.0
+
+*Jul 1, 2025*
+
+* Native conversion requests support
+
 ### 1.0.0
 
 *Jun 27, 2025*
