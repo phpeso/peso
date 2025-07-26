@@ -38,9 +38,9 @@
         "peso/core": "^1.1.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.2",
+        "phpunit/phpunit": "^11.5",
         "psy/psysh": "*",
-        "sandfox.dev/code-standard": "^1.2025.05.07",
+        "sandfox.dev/code-standard": "^1.2025.06.29",
         "squizlabs/php_codesniffer": "*",
         "vimeo/psalm": "^6.12"
     }
