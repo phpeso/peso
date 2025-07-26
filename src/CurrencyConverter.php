@@ -47,7 +47,7 @@ final readonly class CurrencyConverter
      */
     public function getExchangeRate(string $baseCurrency, string $quoteCurrency): string
     {
-        return $this->doGetConversionRate($baseCurrency, $quoteCurrency)->value;
+        return $this->doGetExchangeRate($baseCurrency, $quoteCurrency)->value;
     }
 
     /**
@@ -63,7 +63,7 @@ final readonly class CurrencyConverter
     /**
      * @throws PesoException
      */
-    private function doGetConversionRate(string $baseCurrency, string $quoteCurrency): Decimal
+    private function doGetExchangeRate(string $baseCurrency, string $quoteCurrency): Decimal
     {
         $result = $this->rateService->send(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
 
@@ -83,7 +83,7 @@ final readonly class CurrencyConverter
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
     ): string {
-        return $this->doGetHistoricalConversionRate($baseCurrency, $quoteCurrency, $date)->value;
+        return $this->doGetHistoricalExchangeRate($baseCurrency, $quoteCurrency, $date)->value;
     }
 
     /**
@@ -102,7 +102,7 @@ final readonly class CurrencyConverter
     /**
      * @throws PesoException
      */
-    public function doGetHistoricalConversionRate(
+    public function doGetHistoricalExchangeRate(
         string $baseCurrency,
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
