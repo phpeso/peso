@@ -3,12 +3,18 @@
 [![Packagist]][Packagist Link]
 [![PHP]][Packagist Link]
 [![License]][License Link]
+[![GitHub Actions]][GitHub Actions Link]
+[![Codecov]][Codecov Link]
 
 [Packagist]: https://img.shields.io/packagist/v/peso/peso.svg?style=flat-square
 [PHP]: https://img.shields.io/packagist/php-v/peso/peso.svg?style=flat-square
 [License]: https://img.shields.io/packagist/l/peso/peso.svg?style=flat-square
+[GitHub Actions]: https://img.shields.io/github/actions/workflow/status/phpeso/peso/ci.yml?style=flat-square
+[Codecov]: https://img.shields.io/codecov/c/gh/phpeso/peso?style=flat-square
 
 [Packagist Link]: https://packagist.org/packages/peso/peso
+[GitHub Actions Link]: https://github.com/phpeso/peso/actions
+[Codecov Link]: https://codecov.io/gh/phpeso/peso
 [License Link]: LICENSE.md
 
 A simple standalone currency converter based on the Peso framework.
