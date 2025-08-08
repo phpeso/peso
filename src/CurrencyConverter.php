@@ -47,7 +47,7 @@ final readonly class CurrencyConverter
      */
     public function getExchangeRate(string $baseCurrency, string $quoteCurrency): string
     {
-        return $this->doGetExchangeRate(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency))->value;
+        return $this->doGetExchangeRate(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
     }
 
     /**
@@ -70,9 +70,7 @@ final readonly class CurrencyConverter
         string|DateTimeInterface|Date $date,
     ): string {
         $date = $this->normalizeDate($date);
-        return $this->doGetExchangeRate(
-            new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date),
-        )->value;
+        return $this->doGetExchangeRate(new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date));
     }
 
     /**
@@ -89,14 +87,20 @@ final readonly class CurrencyConverter
     }
 
     /**
+     * @return numeric-string
      * @throws PesoException
      */
-    private function doGetExchangeRate(CurrentExchangeRateRequest|HistoricalExchangeRateRequest $request): Decimal
+    private function doGetExchangeRate(CurrentExchangeRateRequest|HistoricalExchangeRateRequest $request): string
     {
+        // handle a trivial conversion
+        if ($request->baseCurrency === $request->quoteCurrency) {
+            return '1';
+        }
+
         $result = $this->rateService->send($request);
 
         if ($result instanceof ExchangeRateResponse) {
-            return $result->rate;
+            return $result->rate->value;
         }
 
         throw $result->exception;
@@ -159,7 +163,12 @@ final readonly class CurrencyConverter
      */
     private function doConvert(CurrentConversionRequest|HistoricalConversionRequest $request, int $precision): string
     {
-        $response = $this->conversionService->send($request);
+        // handle a trivial conversion
+        if ($request->baseCurrency === $request->quoteCurrency) {
+            $response = new ConversionResponse($request->baseAmount, Date::today());
+        } else {
+            $response = $this->conversionService->send($request);
+        }
 
         if ($response instanceof ConversionResponse) {
             return $this->calculator->round($response->amount, $precision)->value;
