@@ -5,6 +5,7 @@
 ### next
 
 * Renamed ConversionType::Both to ConversionType::Fallback
+* Removed public `doGetHistoricalConversionRate()` that was not supposed to be public
 
 ### 1.1.0
 

@@ -47,7 +47,7 @@ final readonly class CurrencyConverter
      */
     public function getExchangeRate(string $baseCurrency, string $quoteCurrency): string
     {
-        return $this->doGetExchangeRate($baseCurrency, $quoteCurrency)->value;
+        return $this->doGetExchangeRate(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency))->value;
     }
 
     /**
@@ -61,20 +61,6 @@ final readonly class CurrencyConverter
     }
 
     /**
-     * @throws PesoException
-     */
-    private function doGetExchangeRate(string $baseCurrency, string $quoteCurrency): Decimal
-    {
-        $result = $this->rateService->send(new CurrentExchangeRateRequest($baseCurrency, $quoteCurrency));
-
-        if ($result instanceof ExchangeRateResponse) {
-            return $result->rate;
-        }
-
-        throw $result->exception;
-    }
-
-    /**
      * @return numeric-string
      * @throws PesoException
      */
@@ -83,7 +69,10 @@ final readonly class CurrencyConverter
         string $quoteCurrency,
         string|DateTimeInterface|Date $date,
     ): string {
-        return $this->doGetHistoricalExchangeRate($baseCurrency, $quoteCurrency, $date)->value;
+        $date = $this->normalizeDate($date);
+        return $this->doGetExchangeRate(
+            new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date),
+        )->value;
     }
 
     /**
@@ -102,13 +91,9 @@ final readonly class CurrencyConverter
     /**
      * @throws PesoException
      */
-    public function doGetHistoricalExchangeRate(
-        string $baseCurrency,
-        string $quoteCurrency,
-        string|DateTimeInterface|Date $date,
-    ): Decimal {
-        $date = $this->normalizeDate($date);
-        $result = $this->rateService->send(new HistoricalExchangeRateRequest($baseCurrency, $quoteCurrency, $date));
+    private function doGetExchangeRate(CurrentExchangeRateRequest|HistoricalExchangeRateRequest $request): Decimal
+    {
+        $result = $this->rateService->send($request);
 
         if ($result instanceof ExchangeRateResponse) {
             return $result->rate;
@@ -141,15 +126,10 @@ final readonly class CurrencyConverter
     ): string {
         $amount = Decimal::init($baseAmount);
 
-        $response = $this->conversionService->send(
+        return $this->doConvert(
             new CurrentConversionRequest($amount, $baseCurrency, $quoteCurrency),
+            $precision,
         );
-
-        if ($response instanceof ConversionResponse) {
-            return $this->calculator->round($response->amount, $precision)->value;
-        }
-
-        throw $response->exception;
     }
 
     /**
@@ -167,9 +147,19 @@ final readonly class CurrencyConverter
         $amount = Decimal::init($baseAmount);
         $date = $this->normalizeDate($date);
 
-        $response = $this->conversionService->send(
+        return $this->doConvert(
             new HistoricalConversionRequest($amount, $baseCurrency, $quoteCurrency, $date),
+            $precision,
         );
+    }
+
+    /**
+     * @return numeric-string
+     * @throws PesoException
+     */
+    private function doConvert(CurrentConversionRequest|HistoricalConversionRequest $request, int $precision): string
+    {
+        $response = $this->conversionService->send($request);
 
         if ($response instanceof ConversionResponse) {
             return $this->calculator->round($response->amount, $precision)->value;
