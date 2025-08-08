@@ -2,8 +2,11 @@
 
 ## 1.x
 
-### next
+### 1.2.0
 
+*Aug 8, 2025*
+
+* Handle trivial conversions without sending requests
 * Renamed ConversionType::Both to ConversionType::Fallback
 * Removed public `doGetHistoricalConversionRate()` that was not supposed to be public
 
