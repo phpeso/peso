@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Peso\Peso\Tests;
 
 use Arokettu\Date\Calendar;
+use Arokettu\Date\Date;
 use DateTime;
 use Peso\Core\Exceptions\ConversionNotPerformedException;
 use Peso\Core\Exceptions\ExchangeRateNotFoundException;
 use Peso\Core\Services\ArrayService;
+use Peso\Core\Services\NullService;
 use Peso\Core\Types\Decimal;
 use Peso\Peso\CurrencyConverter;
 use Peso\Peso\Options\ConversionType;
@@ -181,5 +183,19 @@ final class CurrencyConverterTest extends TestCase
 
         self::assertEquals('656.66', $converter->convert('10', 'EUR', 'PHP', 2));
         self::assertEquals('15.56', $converter->convert('10', 'EUR', 'USD', 2));
+    }
+
+    public function testAlwaysDoTrivialConversions(): void
+    {
+        $converter = new CurrencyConverter(new NullService());
+
+        self::assertEquals('1', $converter->getExchangeRate('PHP', 'PHP'));
+        self::assertEquals('1', $converter->getHistoricalExchangeRate('PHP', 'PHP', Date::today()));
+
+        // still correctly rounded
+        self::assertEquals('12.34', $converter->convert('12.345', 'PHP', 'PHP', 2));
+        self::assertEquals('12.34', $converter->convertOnDate('12.345', 'PHP', 'PHP', 2, Date::today()));
+        self::assertEquals('12.36', $converter->convert('12.355', 'PHP', 'PHP', 2));
+        self::assertEquals('12.36', $converter->convertOnDate('12.355', 'PHP', 'PHP', 2, Date::today()));
     }
 }
